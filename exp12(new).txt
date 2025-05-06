@@ -1,0 +1,129 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+struct Employee {
+    int empID;
+    string name;
+    string designation;
+    double salary;
+};
+
+// Function to add employee information
+void addEmployee() {
+    Employee emp;
+    fstream file("employees.dat", ios::in | ios::out | ios::binary | ios::app);
+    if (!file) {
+        cout << "Error opening file!" << endl;
+        return;
+    }
+
+    cout << "Enter Employee ID: ";
+    cin >> emp.empID;
+    cin.ignore();  // To clear input buffer
+    cout << "Enter Name: ";
+    getline(cin, emp.name);
+    cout << "Enter Designation: ";
+    getline(cin, emp.designation);
+    cout << "Enter Salary: ";
+    cin >> emp.salary;
+
+    file.write(reinterpret_cast<char*>(&emp), sizeof(emp));
+    file.close();
+    cout << "Employee added successfully!" << endl;
+}
+
+// Function to delete employee information by empID
+void deleteEmployee() {
+    int empID;
+    cout << "Enter Employee ID to delete: ";
+    cin >> empID;
+
+    ifstream inFile("employees.dat", ios::binary);
+    ofstream outFile("temp.dat", ios::binary);
+
+    Employee emp;
+    bool found = false;
+
+    while (inFile.read(reinterpret_cast<char*>(&emp), sizeof(emp))) {
+        if (emp.empID != empID) {
+            outFile.write(reinterpret_cast<char*>(&emp), sizeof(emp));
+        } else {
+            found = true;
+        }
+    }
+
+    inFile.close();
+    outFile.close();
+
+    if (found) {
+        remove("employees.dat");
+        rename("temp.dat", "employees.dat");
+        cout << "Employee record deleted!" << endl;
+    } else {
+        cout << "Employee not found!" << endl;
+        remove("temp.dat");
+    }
+}
+
+// Function to display employee information by empID
+void displayEmployee() {
+    int empID;
+    cout << "Enter Employee ID to display: ";
+    cin >> empID;
+
+    ifstream file("employees.dat", ios::binary);
+    Employee emp;
+    bool found = false;
+
+    while (file.read(reinterpret_cast<char*>(&emp), sizeof(emp))) {
+        if (emp.empID == empID) {
+            cout << "Employee ID: " << emp.empID << endl;
+            cout << "Name: " << emp.name << endl;
+            cout << "Designation: " << emp.designation << endl;
+            cout << "Salary: " << emp.salary << endl;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        cout << "Employee not found!" << endl;
+    }
+
+    file.close();
+}
+
+int main() {
+    int choice;
+    while (true) {
+        cout << "\nMenu:\n";
+        cout << "1. Add Employee\n";
+        cout << "2. Delete Employee\n";
+        cout << "3. Display Employee\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                addEmployee();
+                break;
+            case 2:
+                deleteEmployee();
+                break;
+            case 3:
+                displayEmployee();
+                break;
+            case 4:
+                cout << "Exiting...\n";
+                return 0;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+        }
+    }
+
+    return 0;
+}
+
