@@ -1,3 +1,6 @@
+//Construct an expression tree from a given prefix expression (e.g., +--a*bc/def), perform
+non-recursive post-order traversal, and delete the entire tree.
+
 #include <iostream>
 #include <stack>
 using namespace std;
